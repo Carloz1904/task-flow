@@ -65,7 +65,7 @@ class DBManager:
         cursor.execute("""
             INSERT INTO tareas (titulo, descripcion, fecha_creacion, fecha_limite, prioridad, estado, proyecto_id)
             VALUES (?, ?, ?, ?, ?, ?, ?)
-        """, (tarea._titulo, tarea._descripcion, tarea._fecha_creacion, tarea._fechalimite, tarea._prioridad, tarea._estado, tarea._proyecto_id))
+        """, (tarea._titulo, tarea._descripcion, tarea._fecha_creacion, tarea._fecha_limite, tarea._prioridad, tarea._estado, tarea._proyecto_id))
         
 
 
@@ -88,6 +88,40 @@ class DBManager:
             for fila in filas
         ]
         return proyectos
+
+    
+    def obtener_tareas(self, estado=None):
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        sql = "SELECT * FROM tareas"
+        params = []
+
+        if estado:
+            sql += " WHERE estado = ?"
+            params.append(estado)
+
+        sql += " ORDER BY fecha_limite ASC"
+
+        cursor.execute(sql, params)
+        filas = cursor.fetchall()
+        conn.close()
+
+        tareas = []
+        for fila in filas:
+            t = Tarea(
+                titulo=fila['titulo'],
+                fecha_limite=fila['fecha_limite'],
+                prioridad=fila['prioridad'],
+                proyecto_id=fila['proyecto_id'],
+                estado=fila['estado'],
+                descripcion=fila['descripcion'],
+                id=fila['id']
+            )
+            tareas.append(t)
+        return tareas
+
+
 
 
 if __name__ == '__main__':
