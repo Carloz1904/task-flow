@@ -121,6 +121,21 @@ class DBManager:
             tareas.append(t)
         return tareas
 
+    def actualizar_tarea_estado(self, tarea_id: int, nuevo_estado: str) -> bool:
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            UPDATE tareas
+            SET estado=?
+        """, (nuevo_estado, tarea_id))
+
+        update = cursor.rowcount > 0
+
+        conn.commit()
+        conn.close()
+        return update
+
 
 
 
